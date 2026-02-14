@@ -4,9 +4,11 @@ import logfire
 from dotenv import load_dotenv
 from pydantic_ai import Agent
 
-# Configura o logfire para mostrar o que acontece "por baixo do capô"
-logfire.configure()
 load_dotenv()
+
+# Configura o logfire para mostrar o que acontece "por baixo do capô"
+logfire.configure(pydantic_plugin=logfire.PydanticPlugin(record='all'))
+logfire.instrument_pydantic_ai()
 
 def carregar_prompt(caminho_arquivo):
     with open(caminho_arquivo,'r',encoding='utf-8') as arquivo:
