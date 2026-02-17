@@ -3,6 +3,9 @@ import asyncio
 import logfire
 from dotenv import load_dotenv
 from pydantic_ai import Agent
+from pydantic_ai.providers.ollama import OllamaProvider
+from pydantic_ai.models.openai import OpenAIChatModel
+
 
 load_dotenv()
 
@@ -17,14 +20,29 @@ def carregar_prompt(caminho_arquivo):
 def criar_agente():
     print("--- Carregando Prompt do arquivo...")
     prompt_conteudo = carregar_prompt("prompts/refina_prompt.txt")
+    islocal = os.getenv("IS_LOCAL", "true")
     
-    modelo = os.getenv("MODEL")
-    print(f"--- Usando o modelo: {modelo}")
+    if islocal:
+        modelo = os.getenv("MODEL_LOCAL")
+        base_url = os.getenv("OLLAMA_BASE_URL")
+        api_key = os.getenv("API_KEY_LOCAL")
+       # Cliente OpenAI apontando para Ollama
+        provider = OllamaProvider(base_url=base_url, api_key=api_key)
+        model = OpenAIChatModel(model_name=modelo, provider=provider)
+
+        agent = Agent(
+            model=model,
+            system_prompt=prompt_conteudo,
+        )
+        return agent
+    else:
+        modelo = os.getenv("MODEL")
+        print(f"--- Usando o modelo: {modelo}")
+        return Agent(
+            model=modelo,
+            system_prompt=prompt_conteudo,
+        )
     
-    return Agent(
-        model=modelo,
-        system_prompt=prompt_conteudo,
-    )
 
 async def main():
     story = """
@@ -32,11 +50,11 @@ async def main():
     o CEP não for encontrado, chamar o microserviço de CEP. Esse MS vai realizar uma chamada ao https dos correios e vai pesquisar 
     o CEP. Se o CEP for encontrado, o MS vai retornar o CEP para o sistema e o sistema vai salvar o CEP na base de dados de CEPS.
     """
-    print("--- Iniciando chamada para o Agente (limite de 60s)...")
+    print("--- Iniciando chamada para o Agente (limite de 300s)...")
     try:
         agente = criar_agente()
-        # Adicionamos um timeout de 60 segundos para não ficar travado para sempre
-        resposta = await asyncio.wait_for(agente.run(story), timeout=60.0)
+        # Timeout de 300 segundos (5 min) - modelos locais precisam de mais tempo
+        resposta = await asyncio.wait_for(agente.run(story), timeout=300.0)
         
         print("\n--- RESPOSTA DA IA ---")
         print(resposta.output)
