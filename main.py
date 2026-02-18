@@ -20,7 +20,7 @@ def carregar_prompt(caminho_arquivo):
 def criar_agente():
     print("--- Carregando Prompt do arquivo...")
     prompt_conteudo = carregar_prompt("prompts/refina_prompt.txt")
-    islocal = os.getenv("IS_LOCAL", "true")
+    islocal = os.getenv("IS_LOCAL", "true").strip().lower() == "true"
     
     if islocal:
         modelo = os.getenv("MODEL_LOCAL")
@@ -59,7 +59,7 @@ async def main():
         print("\n--- RESPOSTA DA IA ---")
         print(resposta.output)
     except asyncio.TimeoutError:
-        print("\n--- ERRO: A chamada demorou demais (Timeout de 60s) ---")
+        print("\n--- ERRO: A chamada demorou demais (Timeout de 300s) ---")
         print("Verifique sua conexão ou se a API Key tem saldo/créditos.")
     except Exception as e:
         print(f"\n--- OCORREU UM ERRO ---")
