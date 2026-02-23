@@ -54,5 +54,5 @@ Se algum item for NÃO, revise antes de finalizar.
 ## AUTOAVALIAÇÃO
 Checklist:
 ...
-Nota (0 a 5):
+Nota (0 a 5, sendo 0 muito ruim e 5 muito bom):
 Justificativa:

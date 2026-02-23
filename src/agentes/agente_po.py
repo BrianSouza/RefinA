@@ -1,9 +1,63 @@
+import time
+import logfire
 from agentes.agente_base import AgenteBase
+from pydantic_graph import End
 
 class AgentePO(AgenteBase):
     def __init__(self):
         super().__init__("src/prompts/refina_storyprompt.txt")
     
     async def run(self, story: str) -> str:
-        resposta = await self.agente.run(story)
-        return resposta.output
+        inicio_total = time.perf_counter()
+        logfire.info("🚀 AgentePO iniciando refinamento de story...")
+        
+        async with self.agente.iter(story) as agent_run:
+            node_count = 0
+            async for node in agent_run:
+                inicio_no = time.perf_counter()
+                node_count += 1
+                node_type = type(node).__name__
+
+                if node_type == "ModelRequestNode":
+                    logfire.info(
+                        "📤 [{count}] Enviando requisição ao LLM: {node_type}",
+                        count=node_count,
+                        node_type=node_type,
+                    )
+
+                elif node_type == "CallToolsNode":
+                    logfire.info(
+                        "🔧 [{count}] LLM retornou - processando tools/resposta: {node_type}",
+                        count=node_count,
+                        node_type=node_type,
+                    )
+
+                elif isinstance(node, End):
+                    logfire.info(
+                        "✅ [{count}] Agente concluiu após {total} nós.",
+                        count=node_count,
+                        total=node_count,
+                    )
+
+                else:
+                    logfire.info(
+                        "❓ [{count}] Nó: {node_type}",
+                        count=node_count,
+                        node_type=node_type,
+                    )
+
+                duracao_no = time.perf_counter() - inicio_no
+                logfire.info(
+                    "⏱️  Nó {node_type} executou em {duracao:.3f}s",
+                    node_type=node_type,
+                    duracao=duracao_no,
+                )
+
+        resultado = agent_run.result.output
+        duracao_total = time.perf_counter() - inicio_total
+        logfire.info(
+            "📝 Story refinada em {duracao:.2f}s ({chars} chars).",
+            duracao=duracao_total,
+            chars=len(resultado),
+        )
+        return resultado

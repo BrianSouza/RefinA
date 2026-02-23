@@ -7,7 +7,6 @@ from pydantic_ai import Agent
 from pydantic_ai.providers.ollama import OllamaProvider
 from pydantic_ai.models.openai import OpenAIChatModel
 
-
 load_dotenv()
 logfire.configure(pydantic_plugin=logfire.PydanticPlugin(record='all'))
 logfire.instrument_pydantic_ai()
