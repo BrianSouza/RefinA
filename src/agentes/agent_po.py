@@ -60,7 +60,7 @@ class AgentPO(AgentBase):
                     duracao=duracao_no,
                 )
 
-        resultado = agent_run.result.data
+        resultado = agent_run.result.output
         duracao_total = time.perf_counter() - inicio_total
         logfire.info(
             "📝 Story processada em {duracao:.2f}s. Status Satisfatório: {status}",
