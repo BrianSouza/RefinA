@@ -1,0 +1,57 @@
+{
+  "$defs": {
+    "critique": {
+      "properties": {
+        "field": {
+          "description": "O campo da story que tem problema (ex: Critérios de Aceite)",
+          "title": "Field",
+          "type": "string"
+        },
+        "issue": {
+          "description": "Descrição clara do que está faltando ou está ambíguo",
+          "title": "Issue",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "issue"
+      ],
+      "title": "critique",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "story_markdown": {
+      "description": "A User Story formatada em Markdown",
+      "title": "Story Markdown",
+      "type": "string"
+    },
+    "is_satisfactory": {
+      "description": "Define se a story está pronta para o refinamento técnico",
+      "title": "Is Satisfactory",
+      "type": "boolean"
+    },
+    "critiques": {
+      "default": [],
+      "description": "Lista de problemas encontrados, caso não esteja satisfatória",
+      "items": {
+        "$ref": "#/$defs/critique"
+      },
+      "title": "Critiques",
+      "type": "array"
+    },
+    "uncertainty_score": {
+      "description": "Score de 0 a 1 de quanto o agente está seguro sobre o contexto fornecido",
+      "title": "Uncertainty Score",
+      "type": "number"
+    }
+  },
+  "required": [
+    "story_markdown",
+    "is_satisfactory",
+    "uncertainty_score"
+  ],
+  "title": "output_story",
+  "type": "object"
+}

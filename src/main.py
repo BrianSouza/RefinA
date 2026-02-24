@@ -1,8 +1,9 @@
 import asyncio
-from agentes.agente_po import AgentePO
+from agentes.agent_po import AgentPO
+from models.input_story import input_story
 
 async def main():
-    agentePO = AgentePO()
+    agentPO = AgentPO()
     story = """
     Quero evoluir a feature de consulta de CEP. Se durante a pesquisa da base de dados de CEPS, 
     o CEP não for encontrado, chamar o microserviço de CEP. Esse MS vai realizar uma chamada ao https dos correios e vai pesquisar 
@@ -10,7 +11,12 @@ async def main():
     """
     print("--- Iniciando chamada para o Agente (limite de 300s)...")
     try:
-        resposta = await asyncio.wait_for(agentePO.run(story), timeout=300.0)
+        input_data = input_story(
+            user_prompt=story,
+            project_context="Microserviço de Logística - Arquitetura de mensageria e SQL Server.",
+            documents=[] 
+        )
+        resposta = await asyncio.wait_for(agentPO.run(input_data), timeout=300.0)
         
         print("\n--- RESPOSTA DA IA ---")
         print(resposta)

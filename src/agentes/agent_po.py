@@ -1,17 +1,24 @@
 import time
 import logfire
-from agentes.agente_base import AgenteBase
+from agentes.agent_base import AgentBase
 from pydantic_graph import End
+from models.input_story import input_story
+from models.output_story import output_story
 
-class AgentePO(AgenteBase):
+class AgentPO(AgentBase):
     def __init__(self):
-        super().__init__("src/prompts/refina_storyprompt.txt")
-    
-    async def run(self, story: str) -> str:
+        super().__init__("src/prompts/refina_storyprompt.txt", output_type=output_story)
+
+    async def run(self, input_story: input_story) -> output_story:
         inicio_total = time.perf_counter()
         logfire.info("🚀 AgentePO iniciando refinamento de story...")
         
-        async with self.agente.iter(story) as agent_run:
+        prompt_input = (
+            f"Contexto do Projeto: {input_story.project_context}\n"
+            f"Input do Usuário: {input_story.user_prompt}\n"
+            f"Documentos: {input_story.documents}"
+        )
+        async with self.agent.iter(prompt_input) as agent_run:
             node_count = 0
             async for node in agent_run:
                 inicio_no = time.perf_counter()
@@ -53,11 +60,11 @@ class AgentePO(AgenteBase):
                     duracao=duracao_no,
                 )
 
-        resultado = agent_run.result.output
+        resultado = agent_run.result.data
         duracao_total = time.perf_counter() - inicio_total
         logfire.info(
-            "📝 Story refinada em {duracao:.2f}s ({chars} chars).",
+            "📝 Story processada em {duracao:.2f}s. Status Satisfatório: {status}",
             duracao=duracao_total,
-            chars=len(resultado),
+            status=resultado.is_satisfactory,
         )
         return resultado
