@@ -16,10 +16,31 @@ async def main():
             project_context="Microserviço de Logística - Arquitetura de mensageria e SQL Server.",
             documents=[] 
         )
+        print("\n--- [1/2] Executando Agente PO (Refinamento da Story) ---")
         resposta = await asyncio.wait_for(agentPO.run(input_data), timeout=300.0)
         
-        print("\n--- RESPOSTA DA IA ---")
+        print("\n--- RESPOSTA DO AGENTE PO ---")
         print(resposta)
+        
+        #TODO: Trecho de código forçado para teste
+        resposta.is_satisfactory = True
+        
+        if resposta.is_satisfactory:
+            from agentes.agent_dev import AgentDev
+            agentDev = AgentDev()
+            
+            print("\n--- [2/2] Executando Agente Dev (Criação das Tasks) ---")
+            tasks_output = await asyncio.wait_for(agentDev.run(input_data, resposta), timeout=300.0)
+            
+            print("\n--- RESPOSTA DO AGENTE DEV (TASKS TÉCNICAS) ---")
+            print(tasks_output)
+        else:
+            print("\n--- ATENÇÃO: A User Story não está satisfatória. ---")
+            print("O Agente PO gerou críticas/dúvidas que precisam ser resolvidas antes de criar as tasks técnicas.")
+            if resposta.critiques:
+                for critique in resposta.critiques:
+                    print(f"- {critique}")
+                    
     except asyncio.TimeoutError:
         print("\n--- ERRO: A chamada demorou demais (Timeout de 300s) ---")
         print("Verifique sua conexão ou se a API Key tem saldo/créditos.")
