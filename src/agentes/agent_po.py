@@ -1,3 +1,4 @@
+import os
 import time
 import logfire
 from agentes.agent_base import AgentBase
@@ -61,10 +62,24 @@ class AgentPO(AgentBase):
                 )
 
         resultado = agent_run.result.output
+        uso = agent_run.usage()
         duracao_total = time.perf_counter() - inicio_total
+        
+        islocal = os.getenv("IS_LOCAL", "true").strip().lower() == "true"
+        model_name = ""
+        if islocal:
+            model_name = os.getenv("MODEL_LOCAL")
+        else:
+            model_name = os.getenv("MODEL")
+
         logfire.info(
             "📝 Story processada em {duracao:.2f}s. Status Satisfatório: {status}",
             duracao=duracao_total,
             status=resultado.is_satisfactory,
+            gen_ai_usage_input_tokens=uso.request_tokens,
+            gen_ai_usage_output_tokens=uso.response_tokens,
+            gen_ai_system=model_name,
         )
+
+        
         return resultado
