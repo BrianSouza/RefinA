@@ -9,18 +9,25 @@ from models.TechnicalRefinementOutput import TechnicalRefinementOutput
 
 class AgentDev(AgentBase):
     def __init__(self):
-        super().__init__("src/prompts/refina_devprompt.txt", output_type=TechnicalRefinementOutput)
+        super().__init__("src/prompts/refina_taskprompt.txt", output_type=TechnicalRefinementOutput)
 
 
-#TODO: definir parametros de entrada e saida 
-    async def run(self,story_refined: output_story) -> TechnicalRefinementOutput:
+    async def run(self, original_input: input_story, story_refined: output_story) -> TechnicalRefinementOutput:
         inicio_total = time.perf_counter()
         logfire.info("🚀 AgenteDev iniciando refinamento...")
         
+        # Formatando anexos se existirem
+        docs_text = "\n".join([f"- {doc.name}: {doc.content}" for doc in original_input.documents]) if original_input.documents else "Nenhum documento anexado."
+
         prompt_input = (
-            f"Contexto do Projeto: {story_refined.project_context}\n"
-            f"Input do Usuário: {story_refined.user_prompt}\n"
-            f"Documentos: {story_refined.documents}"
+            f"Você recebeu uma User Story refinada pelo Product Owner e precisa quebrá-la em tarefas técnicas.\n\n"
+            f"### 1. CONTEXTO DO PROJETO E USUÁRIO\n"
+            f"- **Contexto do Projeto:** {original_input.project_context}\n"
+            f"- **Pedido Original do Usuário:** {original_input.user_prompt}\n\n"
+            f"### 2. USER STORY APROVADA\n"
+            f"{story_refined.story_markdown}\n\n"
+            f"### 3. DOCUMENTAÇÃO TÉCNICA DE APOIO\n"
+            f"{docs_text}"
         )
         async with self.agent.iter(prompt_input) as agent_run:
             node_count = 0
@@ -76,9 +83,9 @@ class AgentDev(AgentBase):
             model_name = os.getenv("MODEL")
 
         logfire.info(
-            "📝 Tasks processadas em {duracao:.2f}s. Status Satisfatório: {status}",
+            "📝 Tasks processadas em {duracao:.2f}s. Status Implementável: {status}",
             duracao=duracao_total,
-            status=resultado.is_satisfactory,
+            status=resultado.is_implementable,
             gen_ai_usage_input_tokens=uso.request_tokens,
             gen_ai_usage_output_tokens=uso.response_tokens,
             gen_ai_system=model_name,
