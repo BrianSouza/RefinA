@@ -1,16 +1,18 @@
 import os
 import time
 import logfire
-from agentes.agent_base import AgentBase
+from src.agentes.agent_base import AgentBase
+from typing import Tuple
 from pydantic_graph import End
-from models.input_story import input_story
-from models.output_story import output_story
+from pydantic_ai.usage import Usage
+from src.models.input_story import input_story
+from src.models.output_story import output_story
 
 class AgentPO(AgentBase):
     def __init__(self):
         super().__init__("src/prompts/refina_storyprompt.txt", output_type=output_story)
 
-    async def run(self, input_story: input_story) -> output_story:
+    async def run(self, input_story: input_story) -> Tuple[output_story, Usage, float]:
         inicio_total = time.perf_counter()
         logfire.info("🚀 AgentePO iniciando refinamento de story...")
         
@@ -82,4 +84,4 @@ class AgentPO(AgentBase):
         )
 
         
-        return resultado
+        return resultado, uso, duracao_total
