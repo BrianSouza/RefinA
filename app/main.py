@@ -172,7 +172,7 @@ if st.session_state.po_output:
     if out.critiques:
         st.warning("O Agente gerou as seguintes críticas/dúvidas:")
         for c in out.critiques:
-            st.write(f"- **{c.critique_type}**: {c.description} (Severidade: {c.severity})")
+            st.write(f"- **{c.field}**: {c.issue}")
     
     # Edição
     st.subheader("Conteúdo da Story")
@@ -257,9 +257,11 @@ if st.session_state.dev_output:
         
     st.subheader("Tasks Geradas")
     for t in outd.tasks:
-        with st.expander(f"{t.task_title}"):
-            st.write(t.frontend_description)
-            st.write(t.backend_description)
+        with st.expander(f"{t.title} - {t.layer} ({t.estimated_risk})"):
+            st.write("**Instrução de IA (Prompt):**")
+            st.write(t.prompt_for_ai)
+            st.write("**Definition of Done:**")
+            st.write(t.definition_of_done)
             
     if not outd.is_implementable:
         st.error("O Agente Dev indicou que as tarefas ainda NÃO SÃO IMPLEMENTÁVEIS. Responda às ambiguidades e tente novamente.")
