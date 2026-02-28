@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from models.attachment import Attachment
+from src.models.attachment import Attachment
 
 class input_story(BaseModel):
     user_prompt: str = Field(description="A descrição inicial ou comando do usuário")

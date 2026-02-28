@@ -1,23 +1,25 @@
 import os
 import time
 import logfire
-from agentes.agent_base import AgentBase
+from src.agentes.agent_base import AgentBase
+from typing import Tuple
 from pydantic_graph import End
-from models.input_story import input_story
-from models.output_story import output_story
-from models.TechnicalRefinementOutput import TechnicalRefinementOutput
+from pydantic_ai.usage import Usage
+from src.models.input_story import input_story
+from src.models.output_story import output_story
+from src.models.TechnicalRefinementOutput import TechnicalRefinementOutput
 
 class AgentDev(AgentBase):
     def __init__(self):
         super().__init__("src/prompts/refina_taskprompt.txt", output_type=TechnicalRefinementOutput)
 
 
-    async def run(self, original_input: input_story, story_refined: output_story) -> TechnicalRefinementOutput:
+    async def run(self, original_input: input_story, story_refined: output_story) -> Tuple[TechnicalRefinementOutput, Usage, float]:
         inicio_total = time.perf_counter()
         logfire.info("🚀 AgenteDev iniciando refinamento...")
         
         # Formatando anexos se existirem
-        docs_text = "\n".join([f"- {doc.name}: {doc.content}" for doc in original_input.documents]) if original_input.documents else "Nenhum documento anexado."
+        docs_text = "\n".join([f"- {doc.file_name}: {doc.content}" for doc in original_input.documents]) if original_input.documents else "Nenhum documento anexado."
 
         prompt_input = (
             f"Você recebeu uma User Story refinada pelo Product Owner e precisa quebrá-la em tarefas técnicas.\n\n"
@@ -92,4 +94,4 @@ class AgentDev(AgentBase):
         )
 
         
-        return resultado
+        return resultado, uso, duracao_total

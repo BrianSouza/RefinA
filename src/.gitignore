@@ -1,2 +1,4 @@
 .env
 .refina
+__pycache__/
+schema_out

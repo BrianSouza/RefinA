@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel, Field
-from models.critique import critique
+from src.models.critique import critique
 
 
 class output_story(BaseModel):

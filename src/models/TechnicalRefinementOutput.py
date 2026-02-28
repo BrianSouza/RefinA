@@ -1,6 +1,6 @@
 from typing import List
 from pydantic import BaseModel
-from models.task import Task
+from src.models.task import Task
 
 class TechnicalRefinementOutput(BaseModel):
     ambiguities: List[str]
