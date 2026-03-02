@@ -47,15 +47,21 @@ A interface do usuário é construída em **Streamlit**, permitindo uma experiê
 
 ## 💻 Como Executar
 
-A interface interativa é inicializada através do **Streamlit**.
+A interface interativa é inicializada através do **Streamlit** e a integração com o repositório exige a inicialização da API **FastAPI**.
 
-Na **raiz do projeto**, execute o seguinte comando no terminal:
+Como não estamos utilizando scripts automáticos, você precisará abrir dois terminais (linhas de comando) diferentes na raiz do seu projeto (`c:\Projetos\RefinA`).
 
+**Terminal 1: Iniciando a API do Azure DevOps:**
+```bash
+uvicorn api.ado_api:app --reload --port 8000
+```
+*(Deixe esta janela/terminal aberto rodando. Você verá mensagens informando que a aplicação subiu ("Application startup complete").)*
+
+**Terminal 2: Iniciando o Frontend (Streamlit):**
 ```bash
 streamlit run app/main.py
 ```
-
-Isso abrirá automaticamente a aplicação no navegador (geralmente em `http://localhost:8501`).
+*(Ao rodar este comando, seu navegador padrão abrirá automaticamente a aplicação em `http://localhost:8501`. Mantenha esta janela também aberta enquanto usar o app.)*
 
 ### Utilizando a Interface
 1. **Descreva o Problema**: Preencha o campo obrigatório com o que o usuário deseja (User Story bruta).

@@ -8,4 +8,4 @@ class TechnicalRefinementOutput(BaseModel):
     impacted_layers: List[str]
     risk_assessment: str
     tasks: List[Task]
-    is_implementable: bool # Nova flag: Se False, o dev avisa que não dá pra codar ainda
+    is_implementable: bool 

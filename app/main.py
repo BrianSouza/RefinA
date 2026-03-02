@@ -268,6 +268,50 @@ if st.session_state.dev_output:
     else:
         st.success("O Agente Dev indicou que as tarefas SÃO IMPLEMENTÁVEIS e estão prontas para o time.")
         
+        st.divider()
+        st.subheader("Integração com Azure DevOps")
+        st.write("A exportação usará as configurações do Azure DevOps definidas no seu arquivo `.env`.")
+        
+        # Recupera URL da API RefinA caso configurado ou assume o padrão local
+        ado_api_url = os.getenv("ADO_API_URL", "http://localhost:8000/api/v1/ado/create_work_items")
+
+        if st.button("🚀 Enviar para Azure DevOps", type="primary", use_container_width=True):
+            with st.spinner("Enviando dados para o Azure DevOps..."):
+                payload = {
+                    "story": {
+                        "title": st.session_state.current_input[:50] + "..." if len(st.session_state.current_input) > 50 else st.session_state.current_input,
+                        "description_markdown": st.session_state.edited_story
+                    },
+                    "tasks": [
+                        {
+                            "title": t.title,
+                            "description": f"**Prompt:**\n{t.prompt_for_ai}\n\n**DoD:**\n{t.definition_of_done}",
+                            "layer": t.layer,
+                            "estimated_risk": t.estimated_risk
+                        } for t in outd.tasks
+                    ]
+                }
+                
+                try:
+                    resp = requests.post(ado_api_url, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        st.success(f"Sucesso! {data.get('message')}")
+                        st.markdown(f"**Story Criada:** [{data['story']['id']}]({data['story']['url']})")
+                        st.write(f"**Tasks Criadas:** {data.get('tasks_criadas')}")
+                        for t in data.get('tasks', []):
+                            if "url" in t:
+                                st.markdown(f"- [{t['title']}]({t['url']})")
+                            else:
+                                st.warning(f"- {t['title']} (Erro: {t.get('error')})")
+                    else:
+                        st.error(f"Erro na integração: HTTP {resp.status_code} - {resp.text}")
+                except requests.exceptions.ConnectionError:
+                    st.error(f"Falha ao conectar na API local. Certifique-se de que a API do ADO (FastAPI) está rodando em {ado_api_url}")
+                except Exception as e:
+                    st.error(f"Ocorreu um erro inesperado: {str(e)}")
+        
     if st.button("🔄 REFINAR NOVAMENTE", use_container_width=True):
         st.session_state.dev_output = None
         st.rerun()
+
